@@ -1,0 +1,15 @@
+<resources>
+    <string name="app_name">My Application</string>
+    <string name="title_noti_lock_1">Tell Your Story Through Photos! 🌠</string>
+    <string name="message_noti_lock_1">Turn your memories into a captivating video.</string>
+    <string name="title_noti_lock_2">Turn an Ordinary Photo into a Masterpiece! 🌈</string>
+    <string name="message_noti_lock_2">Edit your photo like a pro.</string>
+    <string name="title_noti_lock_3">Better Photos, Better Frames! 🖼️</string>
+    <string name="message_noti_lock_3">Try a new frame that suits your style.</string>
+    <string name="title_noti_normal_1">Make Your Photos Come Alive! 🎞️</string>
+    <string name="message_noti_normal_1">Create a beautiful slideshow right on your phone.</string>
+    <string name="title_noti_normal_2">Capture the Moment Together! 💕</string>
+    <string name="message_noti_normal_2">Combine memorable moments with friends and family.</string>
+    <string name="title_noti_normal_3">New Photo Frames Just Landed! 🌟</string>
+    <string name="message_noti_normal_3">Make your photos stand out with beautiful new frames.</string>
+</resources>
