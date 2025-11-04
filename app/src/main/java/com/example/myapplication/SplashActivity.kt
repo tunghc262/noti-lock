@@ -9,9 +9,18 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import androidx.lifecycle.lifecycleScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 import java.util.Calendar
 
 class SplashActivity : AppCompatActivity() {
+
+    companion object {
+        const val REQUEST_CODE_NOTIFICATION_LOCK = 0
+        const val REQUEST_CODE_NOTIFICATION_NORMAL = 1
+        const val ALARM_REQUEST_CODE = "ALARM_REQUEST_CODE"
+    }
 
     private lateinit var alarmManager: AlarmManager
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,17 +36,21 @@ class SplashActivity : AppCompatActivity() {
 
         val fromNotification = intent?.getBooleanExtra("from_notification", false) == true
 
-        if (fromNotification) {
-            if (App.isAppStarted) {
-                overridePendingTransition(0, 0)
-                finish()
-                return
-            } else {
-                scheduleDailyWork()
-            }
+        if (fromNotification && App.isAppStarted){
+            overridePendingTransition(0, 0)
+            finish()
+            return
         }
 
-
+        scheduleDailyWork()
+        lifecycleScope.launch {
+            delay(5000)
+            if (fromNotification){
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            }else{
+                startActivity(Intent(this@SplashActivity, MainActivity::class.java))
+            }
+        }
     }
 
     private fun scheduleDailyWork() {
@@ -49,25 +62,32 @@ class SplashActivity : AppCompatActivity() {
             return
         }
 
-        val intent = Intent(this, DailyWorkReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
+        val intentLock = Intent(this, DailyWorkReceiver::class.java).apply {
+            putExtra(ALARM_REQUEST_CODE, REQUEST_CODE_NOTIFICATION_LOCK)
+        }
+
+        val pendingIntentLock = PendingIntent.getBroadcast(
             this,
-            0,
-            intent,
+            REQUEST_CODE_NOTIFICATION_LOCK,
+            intentLock,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val pendingIntent2 = PendingIntent.getBroadcast(
+        val intentNormal = Intent(this, DailyWorkReceiver::class.java).apply {
+            putExtra(ALARM_REQUEST_CODE, REQUEST_CODE_NOTIFICATION_NORMAL)
+        }
+
+        val pendingIntentNormal = PendingIntent.getBroadcast(
             this,
-            1,
-            intent,
+            REQUEST_CODE_NOTIFICATION_NORMAL,
+            intentNormal,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         val calendar = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
             set(Calendar.HOUR_OF_DAY, 17)
-            set(Calendar.MINUTE, 2)
+            set(Calendar.MINUTE, 15)
             set(Calendar.SECOND, 0)
             if (timeInMillis < System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_YEAR, 1)
@@ -77,7 +97,7 @@ class SplashActivity : AppCompatActivity() {
         val calendar2 = Calendar.getInstance().apply {
             timeInMillis = System.currentTimeMillis()
             set(Calendar.HOUR_OF_DAY, 17)
-            set(Calendar.MINUTE, 5)
+            set(Calendar.MINUTE, 17)
             set(Calendar.SECOND, 0)
             if (timeInMillis < System.currentTimeMillis()) {
                 add(Calendar.DAY_OF_YEAR, 1)
@@ -90,37 +110,42 @@ class SplashActivity : AppCompatActivity() {
             AlarmManager.RTC_WAKEUP,
             calendar.timeInMillis,
             dayInterval,
-            pendingIntent
+            pendingIntentLock
         )
 
         alarmManager.setInexactRepeating(
             AlarmManager.RTC_WAKEUP,
             calendar2.timeInMillis,
             dayInterval,
-            pendingIntent2
+            pendingIntentNormal
         )
     }
 
     private fun cancelDailyWork() {
-        val intent = Intent(this, DailyWorkReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
+        val intentLock = Intent(this, DailyWorkReceiver::class.java).apply {
+            putExtra(ALARM_REQUEST_CODE, REQUEST_CODE_NOTIFICATION_LOCK)
+        }
+        val pendingIntentLock = PendingIntent.getBroadcast(
             this,
-            0,
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            REQUEST_CODE_NOTIFICATION_LOCK,
+            intentLock,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent)
+        if (pendingIntentLock != null) {
+            alarmManager.cancel(pendingIntentLock)
         }
 
-        val pendingIntent2 = PendingIntent.getBroadcast(
+        val intentNormal = Intent(this, DailyWorkReceiver::class.java).apply {
+            putExtra(ALARM_REQUEST_CODE, REQUEST_CODE_NOTIFICATION_NORMAL)
+        }
+        val pendingIntentNormal = PendingIntent.getBroadcast(
             this,
-            1,
-            intent,
-            PendingIntent.FLAG_NO_CREATE or PendingIntent.FLAG_IMMUTABLE
+            REQUEST_CODE_NOTIFICATION_NORMAL,
+            intentNormal,
+            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
-        if (pendingIntent != null) {
-            alarmManager.cancel(pendingIntent2)
+        if (pendingIntentNormal != null) {
+            alarmManager.cancel(pendingIntentNormal)
         }
     }
 }

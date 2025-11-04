@@ -49,20 +49,43 @@ class NotificationWorker(
         )
 
     override suspend fun doWork(): Result {
-        Log.e("TAG", "onReceive: ")
+        Log.e("TAG", "doWork: ")
+        val requestCode = inputData.getInt(SplashActivity.ALARM_REQUEST_CODE, -1)
+        Log.e("TAG", "doWork: Receive request code: $requestCode")
+
         if (isSendNotification()) {
-            checkAppStateAndNotify()
+            checkAppStateAndNotify(requestCode)
         }
         return Result.success()
     }
 
-    private fun checkAppStateAndNotify() {
+    private fun checkAppStateAndNotify(requestCode: Int) {
         val serviceNotificationManager = (context as App).serviceNotificationManager
-        serviceNotificationManager.createNotificationOffline(
-            "notification.title",
-            "notification.message"
-        )
+        val notification: NotificationData? = when (requestCode) {
+            0 -> notificationLock.randomOrNull()
+            1 -> notificationNormal.randomOrNull()
+            else -> {
+                Log.e("TAG", "checkAppStateAndNotify: ")
+                null
+            }
+        }
+        if (requestCode == 0) {
+            notification?.let {
+                serviceNotificationManager.createNotificationLockOffline(
+                    notification.title,
+                    notification.message
+                )
+            }
+        } else if (requestCode == 1) {
+            notification?.let {
+                serviceNotificationManager.createNotificationNormalOffline(
+                    notification.title,
+                    notification.message
+                )
+            }
+        }
     }
+
     private fun isSendNotification(): Boolean {
 //        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
 //            context.isNotificationPermissionsGranted()
@@ -80,11 +103,6 @@ class NotificationWorker(
         private const val INDEX_THEME = 3
         private const val INDEX_CAMOUFLAGE = 4
         private const val INDEX_PREVENT_UNINSTALL = 5
-        private const val TITLE_LOCK = "TITLE_LOCK"
-        private const val MESSAGE_LOCK = "MESSAGE_LOCK"
-        private const val TITLE_NORMAL = "TITLE_NORMAL"
-        private const val MESSAGE_NORMAL = "MESSAGE_NORMAL"
-
     }
 
 }

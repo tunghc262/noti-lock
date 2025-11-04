@@ -15,8 +15,12 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.MyApplication">
         <activity
+            android:name=".LanguageActivity"
+            android:exported="false" />
+        <activity
             android:name=".SplashActivity"
-            android:exported="true" >
+            android:exported="true"
+            android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
@@ -25,10 +29,9 @@
         </activity>
         <activity
             android:name=".MainActivity"
-            android:exported="false">
-        </activity>
-        <receiver android:name=".DailyWorkReceiver">
-        </receiver>
+            android:exported="false"></activity>
+
+        <receiver android:name=".DailyWorkReceiver"></receiver>
     </application>
 
 </manifest>
